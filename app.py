@@ -47,11 +47,9 @@ def _carpeta_inicial() -> Path | None:
     return None
 
 
-def _siguiente_destino(carpeta: Path, periodo: tuple[int, int] | None = None) -> Path:
+def _siguiente_destino(carpeta: Path, nombre_sugerido: str) -> Path:
     """Propone un nombre libre y conserva intactos los Excel ya generados."""
-    anio, semestre = periodo or (2026, 2)
-    etiqueta = "IPA" if semestre == 1 else "IIPA"
-    base = carpeta / f"ESTUDIANTES_{anio}_{etiqueta}.xlsx"
+    base = carpeta / nombre_sugerido
     if not base.exists():
         return base
 
@@ -184,7 +182,7 @@ class Aplicacion(ttk.Frame):
 
     def _actualizar_salida(self) -> None:
         self.salida_texto.set(
-            str(_siguiente_destino(self.carpeta, self.resultado.periodo))
+            str(_siguiente_destino(self.carpeta, self.resultado.nombre_sugerido))
             if self.carpeta and self.resultado is not None
             else "Se definirá al terminar el análisis."
         )
@@ -351,14 +349,14 @@ class Aplicacion(ttk.Frame):
 
         carpeta = self.carpeta
         resultado = self.resultado
-        destino = _siguiente_destino(carpeta, resultado.periodo)
+        destino = _siguiente_destino(carpeta, resultado.nombre_sugerido)
         self.salida_texto.set(str(destino))
 
         def trabajo() -> Path:
             modulo = importlib.import_module("transformador")
             # Revisa otra vez por si apareció un archivo mientras se mostraba
             # la propuesta. El transformador debe evitar sobreescribir también.
-            ruta = _siguiente_destino(carpeta, resultado.periodo)
+            ruta = _siguiente_destino(carpeta, resultado.nombre_sugerido)
             return Path(modulo.generar(resultado, ruta))
 
         self._iniciar("generar", trabajo)

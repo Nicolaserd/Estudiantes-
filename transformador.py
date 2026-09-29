@@ -185,6 +185,8 @@ class Resultado:
     reportes: dict[str, Path]
     firmas: tuple[tuple[str, int, int], ...]
     periodo: tuple[int, int]
+    periodos_salida: tuple[str, ...]
+    nombre_sugerido: str
     filas_nuevas: list[tuple[object, ...]]
     canon_programas: dict[str, str]
     regiones: dict[str, str]
@@ -329,6 +331,10 @@ def analizar(carpeta: Path, seleccion: dict[str, Path] | None = None) -> Resulta
     canon.update(nuevos)
     anio, semestre = next(iter(periodos))
     periodo = "IPA" if semestre == 1 else "IIPA"
+    periodos_existentes = {_texto(fila[7]) for fila in filas_historicas[1:] if fila[6] == anio}
+    periodos_salida = tuple(p for p in ("IPA", "IIPA") if p in periodos_existentes | {periodo})
+    etiqueta_salida = "_".join(periodos_salida)
+    nombre_sugerido = f"ESTUDIANTES_{anio}_{etiqueta_salida}.xlsx"
     filas_nuevas = []
     for (categoria, sede, clave_programa, anio_fila, semestre_fila), cantidad in sorted(grupos.items()):
         programa = canon[clave_programa]
@@ -391,6 +397,7 @@ def analizar(carpeta: Path, seleccion: dict[str, Path] | None = None) -> Resulta
         "Archivos seleccionados: " + "; ".join(f"{categoria}: {reportes[categoria].name}"
                                                 for categoria, *_ in ESPECIFICACIONES) + ".",
         f"Periodo de los cinco reportes: {anio}-{semestre} ({periodo}).",
+        f"Semestres de {anio} en el Excel resultante: {', '.join(periodos_salida)}.",
         f"Excel histórico: {indicadores['filas_historicas']:,} filas. Reportes: {total_fuente:,} registros.",
         "Conteos: " + ", ".join(f"{cat} {conteos_fuente[cat]:,}" for cat, *_ in ESPECIFICACIONES) + ".",
         f"Se agregarán {len(filas_nuevas):,} grupos con {datos_nuevos:,} registros.",
@@ -419,7 +426,8 @@ def analizar(carpeta: Path, seleccion: dict[str, Path] | None = None) -> Resulta
     if indicadores["duplicados_fuente"]:
         lineas.append(f"Se omitieron {indicadores['duplicados_fuente']} filas repetidas por documento y programa.")
     firmas = tuple(_firma(path) for path in (base, *reportes.values()))
-    return Resultado(Path(carpeta).resolve(), base, reportes, firmas, (anio, semestre), filas_nuevas,
+    return Resultado(Path(carpeta).resolve(), base, reportes, firmas, (anio, semestre),
+                     periodos_salida, nombre_sugerido, filas_nuevas,
                      canon, regiones, duplicados, atipicos, atipicos_historicos,
                      posibles_variantes,
                      [(canon[k], sum(v.values())) for k, v in etiquetas_nuevas.items()],
@@ -478,6 +486,7 @@ def generar(resultado: Resultado, destino: Path) -> Path:
         control.append(("Fuente histórica", resultado.base.name))
         control.append(("Año", resultado.periodo[0]))
         control.append(("Semestre", resultado.periodo[1]))
+        control.append(("Semestres del año en la salida", ", ".join(resultado.periodos_salida)))
         control.append(("Filas históricas", resultado.indicadores["filas_historicas"]))
         control.append(("Grupos nuevos", len(resultado.filas_nuevas)))
         control.append(("Registros nuevos", sum(f[5] for f in resultado.filas_nuevas)))

@@ -17,6 +17,10 @@ El entorno de compilación debe tener Python 3, PyInstaller y openpyxl previamen
 3. Pulsa **Analizar** y revisa las alertas de nombres, documentos, duplicados y valores atípicos.
 4. Pulsa **Generar Excel** para crear el libro transformado y revisa el archivo de salida que indique la aplicación.
 
+Si `ESTUDIANTES.xlsx` ya contiene 2026 IPA y los reportes elegidos son de 2026 IIPA, la salida se propone como `ESTUDIANTES_2026_IPA_IIPA.xlsx` e incluye ambos semestres.
+
+El archivo anterior `ESTUDIANTES_2026_IIPA.xlsx` se conserva como referencia, pero contiene solo el segundo semestre. Para consultar 2026 completo, abre `ESTUDIANTES_2026_IPA_IIPA.xlsx`.
+
 `ESTUDIANTES.xlsx` se conserva como original; la aplicación genera un archivo nuevo y no sobrescribe los reportes.
 
 El `.exe` no está firmado digitalmente. Si la política institucional impide ejecutarlo, solicite revisión o firma al equipo de TI; no cambie la configuración del antivirus. En un equipo que ya tenga Python y `openpyxl`, también se puede abrir con `python app.py`.
