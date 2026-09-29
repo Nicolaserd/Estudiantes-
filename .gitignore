@@ -1,0 +1,12 @@
+# Los reportes de origen contienen datos personales y no se publican.
+/reportes/
+Reporte_general__*
+
+# Archivos temporales de Python y del empaquetado.
+/build/
+/__pycache__/
+*.pyc
+*.pyo
+/*.spec
+/.venv-build/
+.estudiantes_*.xlsx
